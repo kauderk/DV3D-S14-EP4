@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "MasterManager", menuName = "Audio/MasterManager")]
+[CreateAssetMenu(fileName = "MainManager", menuName = "Singleton/MainManager")]
 public class MainManager : SingletonScriptableObject<MainManager>
 {
     public static Action OnGameInitialized;

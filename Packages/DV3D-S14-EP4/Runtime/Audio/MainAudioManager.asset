@@ -9,10 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 491c347a4d7394748b92a7e1d2ae7edf, type: 3}
-  m_Name: NewSoundEffect
+  m_Script: {fileID: 11500000, guid: a7b56d1e3c96676408c6791fd18c7d7e, type: 3}
+  m_Name: MainAudioManager
   m_EditorClassIdentifier: 
-  clips: []
+  clips:
+  - {fileID: 8300000, guid: bff67af1b2e6fd74ea797b5772983284, type: 3}
   volume: {x: 0.5, y: 0.5}
   useSemitones: 0
   semitones: {x: 0, y: 0}
