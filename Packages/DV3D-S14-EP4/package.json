@@ -1,0 +1,32 @@
+{
+	"name": "com.kauderk.dv3d-s14-ep4",
+	"version": "0.0.1",
+	"displayName": "DV3D-S14-EP4",
+	"description": "This is a package Example",
+	"unity": "2020.3",
+	"unityRelease": "6f1",
+	"documentationUrl": "https://example.com/",
+	"changelogUrl": "https://example.com/changelog.html",
+	"licensesUrl": "https://example.com/licensing.html",
+	"samples": [
+		{
+			"displayName": "DV3D-S14-EP4",
+			"description": "Example of DV3D-S14-EP4",
+			"path": "Runtime/"
+		}
+	],
+	"dependencies": {
+		"com.intothedev.objectpooling": "https://github.com/IntoTheDev/Object-Pooling-for-Unity.git",
+		"com.unity.ugui": "1.0.0",
+		"com.unity.textmeshpro": "3.0.1"
+	},
+	"keywords": [
+		"DV3D-S14-EP4",
+		"Example"
+	],
+	"author": {
+		"name": "kauderk",
+		"email": "unity@example.com",
+		"url": "https://www.unity3d.com"
+	}
+}

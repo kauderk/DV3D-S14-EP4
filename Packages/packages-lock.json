@@ -7,6 +7,16 @@
       "dependencies": {},
       "hash": "3d84834a45f7985764a5bbd5c7f4da14812c2b4c"
     },
+    "com.kauderk.dv3d-s14-ep4": {
+      "version": "file:DV3D-S14-EP4",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.intothedev.objectpooling": "https://github.com/IntoTheDev/Object-Pooling-for-Unity.git",
+        "com.unity.ugui": "1.0.0",
+        "com.unity.textmeshpro": "3.0.1"
+      }
+    },
     "com.unity.ext.nunit": {
       "version": "1.0.6",
       "depth": 1,
