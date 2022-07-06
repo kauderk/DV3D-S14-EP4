@@ -114,6 +114,11 @@ public class PathGenerator : IInitializable, ITickable, IDisposable
 
     public void Generate(Vector3 direction)
     {
+        if (!_spawnTo)
+        {
+            // something broke, man...
+            return;
+        }
         var oldPosition = _spawnTo.position;
         var position = oldPosition + direction;
         var viewportPosition = _camera.WorldToViewportPoint(position);

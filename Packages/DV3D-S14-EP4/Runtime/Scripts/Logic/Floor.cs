@@ -14,9 +14,17 @@ public class Floor : MonoBehaviour, IPoolable
     private void Awake() =>
         _mover = GetComponent<DirectionalMover>();
 
-    private void OnReleaseAll(string WhiteList)
+    private string WhiteList = "EditorOnly";
+
+    private void OnReleaseAll(string _WhiteList)
     {
-        if (!gameObject.tag.Equals(WhiteList))
+        ReleaseOthers(WhiteList = _WhiteList);
+    }
+
+    private void ReleaseOthers(string s)
+    {
+        // something broke, man...
+        if (!gameObject.tag.Equals(s))
             gameObject.Release();
     }
 
@@ -41,8 +49,7 @@ public class Floor : MonoBehaviour, IPoolable
         Invoke(nameof(Release), TIME_BEFORE_RELEASE);
     }
 
-    private void Release() =>
-        gameObject.Release();
+    private void Release() => ReleaseOthers(WhiteList);
 
     public void OnGet() { }
 
