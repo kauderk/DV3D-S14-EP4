@@ -6,7 +6,7 @@ using Zenject;
 public class Player : MonoBehaviour
 {
     [SerializeField] private TriggerDetection _triggerDetection = null;
-    
+
     private GameConfig _config = null;
     private Mover _mover = null;
     private GroundDetection _groundDetector = null;
@@ -15,19 +15,19 @@ public class Player : MonoBehaviour
     private Rigidbody _body = null;
 
     public event Action<int> OnScoreChanged = null;
-    public event Action OnLose = null; 
+    public event Action OnLose = null;
 
     [Inject]
     private void Construct(IUserInput userInput, GameConfig config)
     {
         _userInput = userInput;
         _config = config;
-        
+
         _userInput.OnPress += EnableMover;
         _mover = GetComponent<Mover>();
         _mover.SetSpeed(_config.Speed);
     }
-    
+
     private void Awake()
     {
         _groundDetector = GetComponent<GroundDetection>();
@@ -52,13 +52,13 @@ public class Player : MonoBehaviour
         _userInput.OnPress -= EnableMover;
         _userInput.OnPress += ChangeDirection;
     }
-    
+
     private void ChangeDirection()
     {
         _mover.ChangeDirection();
         IncreaseScore(1);
     }
-    
+
     private void OnObjectDetected(Collider other) =>
         IncreaseScore(other.GetComponent<Pickupable>().Take());
 
