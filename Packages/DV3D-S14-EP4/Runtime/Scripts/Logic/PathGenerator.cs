@@ -9,15 +9,12 @@ public class PathGenerator : IInitializable, ITickable, IDisposable
     private readonly IUserInput _userInput = null;
     private readonly Settings _settings = null;
     private readonly Stopwatch _stopwatch = null;
-    private readonly Stopwatch startStopwatch = null;
+    private readonly FakeAsyncStopwatch _fakeAsyncStopwatch = null;
     private Transform _spawnTo = null;
     private Vector3 _crystalSpawnOffset = default;
     private Camera _camera = null;
     private bool _isEnabled = false;
-    private int startPath = 0;
-    private bool finishedStartPath = false;
-    private bool allowed2StartPath = false;
-    private float startPathCreationRate = .25f;
+
 
 
     private const float CREATION_RATE = 0.1f;
@@ -29,7 +26,6 @@ public class PathGenerator : IInitializable, ITickable, IDisposable
 
     public PathGenerator(IUserInput userInput, Settings settings)
     {
-
         _userInput = userInput;
         _settings = settings;
 
@@ -38,7 +34,7 @@ public class PathGenerator : IInitializable, ITickable, IDisposable
         _userInput.OnPress += EnableCreation;
         _stopwatch = new Stopwatch(CREATION_RATE);
 
-        startStopwatch = new Stopwatch(startPathCreationRate);
+        _fakeAsyncStopwatch = new FakeAsyncStopwatch(GenerateRandom, Generate, CRYSTALS_START_COUNT);
     }
 
     public void Initialize()
@@ -51,27 +47,14 @@ public class PathGenerator : IInitializable, ITickable, IDisposable
     public void Tick()
     {
 
-        if (finishedStartPath && _isEnabled && _stopwatch.IsElapsed)
+        if (!_fakeAsyncStopwatch.Finished && _isEnabled && _stopwatch.IsElapsed)
         {
             GenerateRandom();
             _stopwatch.Reset();
         }
-        else if (!finishedStartPath && allowed2StartPath && startStopwatch.IsElapsed)
+        else if (_fakeAsyncStopwatch.Finished)
         {
-            if (startPath == 0) // not even started yet
-            {
-                Generate(Vector3.right);
-            }
-            else if (startPath < PREGENERATED_TILES_COUNT)
-            {
-                GenerateRandom();
-            }
-            else
-            {
-                finishedStartPath = true;
-            }
-            startPath++;
-            startStopwatch.Reset(startStopwatch.Duration - .05f);
+            Debug.Log("Finished");
         }
     }
 
@@ -98,10 +81,7 @@ public class PathGenerator : IInitializable, ITickable, IDisposable
     private void OnBeforePressManagers()
     {
         _spawnTo.position = Vector3.zero;
-        startPath = 0;
-        allowed2StartPath = true;
-        finishedStartPath = false;
-        startStopwatch.Reset(startPathCreationRate);
+        _fakeAsyncStopwatch.HardReset();
     }
     private void OnBeforePress()
     {
@@ -113,6 +93,7 @@ public class PathGenerator : IInitializable, ITickable, IDisposable
         _userInput.OnBeforePress -= OnBeforePress;
         _userInput.OnPress -= EnableCreation;
     }
+
     public void Dispose()
     {
         PoolsManager.OnBeforePress -= OnBeforePressManagers;
@@ -120,10 +101,10 @@ public class PathGenerator : IInitializable, ITickable, IDisposable
         _userInput.OnPress -= EnableCreation;
     }
 
-    private void GenerateRandom() =>
+    public void GenerateRandom() =>
         Generate(Random.value <= 0.5f ? Vector3.forward : Vector3.right);
 
-    private void Generate(Vector3 direction)
+    public void Generate(Vector3 direction)
     {
         var oldPosition = _spawnTo.position;
         var position = oldPosition + direction;
@@ -154,5 +135,64 @@ public class PathGenerator : IInitializable, ITickable, IDisposable
         public GameObject CrystalPrefab => _crystalPrefab;
         public Transform Start => _start;
         public float CrystalSpawnProbability => _crystalSpawnProbability;
+    }
+    [Serializable]
+    public class FakeAsyncStopwatch
+    {
+        private readonly Stopwatch stopwatch = null;
+        private int index = 0;
+        private bool finished = false;
+        private bool allowed2Init = false;
+        private float startPathCreationRate = .25f;
+        private float countTarget = 50;
+        // create callbacks
+        public static Action OnUpdateValue;
+        public static Action<Vector3> OnCountCero;
+
+        public FakeAsyncStopwatch(
+            Action _CountCero,
+            Action<Vector3> _UpdateIndex,
+            int _countTarget,
+            float _startPathCreationRate = .25f
+        )
+        {
+            _startPathCreationRate = startPathCreationRate;
+            stopwatch = new Stopwatch(startPathCreationRate);
+            countTarget = _countTarget;
+            OnUpdateValue += _CountCero;
+            OnCountCero += _UpdateIndex;
+        }
+
+        public void HardReset(float duration = .25f)
+        {
+            index = 0;
+            allowed2Init = true;
+            finished = false;
+            stopwatch.Reset(duration);
+        }
+        public bool Finished
+        {
+            get
+            {
+                if (!finished && allowed2Init && stopwatch.IsElapsed)
+                {
+                    if (index == 0) // not even started yet
+                    {
+                        OnCountCero?.Invoke(Vector3.right);
+                    }
+                    else if (index < countTarget)
+                    {
+                        OnUpdateValue?.Invoke();
+                    }
+                    else
+                    {
+                        return finished = true;
+                    }
+                    index++;
+                    stopwatch.Reset(stopwatch.Duration - .05f);
+                }
+                return false;
+            }
+        }
     }
 }
