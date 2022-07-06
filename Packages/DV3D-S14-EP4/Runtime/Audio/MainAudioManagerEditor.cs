@@ -3,13 +3,13 @@ using ScriptableObjects;
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(SoundEffectSO))]
+[CustomEditor(typeof(MainAudioManager))]
 public class SoundEffectSOEditor : Editor
 {
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
-        var script = (SoundEffectSO)target;
+        var script = (MainAudioManager)target;
 
         // add white space
         EditorGUILayout.Space();

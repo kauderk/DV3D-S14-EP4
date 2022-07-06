@@ -8,7 +8,7 @@ using Random = UnityEngine.Random;
 namespace ScriptableObjects
 {
     [CreateAssetMenu(fileName = "NewSoundEffect", menuName = "Audio/New Sound Effect")]
-    public class SoundEffectSO : ScriptableObject
+    public class MainAudioManager : ScriptableObject
     {
         #region config
 
