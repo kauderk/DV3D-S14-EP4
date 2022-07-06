@@ -6,17 +6,28 @@ using UnityEngine;
 
 public class Pickupable : MonoBehaviour
 {
-    [SerializeField] private int _score = 3;
+    [SerializeField] private int _score_ = 3;
 
     [SerializeField] private AudioSource pickupSound;
 
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(transform.position, 1);
+        // draw a thick red line pointing upwards
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(transform.position, transform.position + Vector3.up * 2);
+    }
+
     private void Awake()
     {
+        ToggleVisivility(true);
         pickupSound = GetComponent<AudioSource>();
     }
 
     private void OnEnable()
     {
+        ToggleVisivility(true);
         PoolsManager.OnReleaseAll += OnReleaseAll;
     }
     private void OnDisable()
@@ -34,17 +45,22 @@ public class Pickupable : MonoBehaviour
     public int Take()
     {
         StartCoroutine(SecondsCoroutine(pickupSound.clip.length + .2f)); // I NEED YOU ASYNC!
-        return _score;
+        return _score_;
     }
 
     IEnumerator SecondsCoroutine(float seconds)
     {
         pickupSound.Play();
-        // disable mesh renderer
-        GetComponent<MeshRenderer>().enabled = false;
-        // disable collider
-        GetComponent<Collider>().enabled = false;
+        ToggleVisivility(false);
         yield return new WaitForSeconds(seconds);
         gameObject.Release();
+    }
+
+    private void ToggleVisivility(bool b)
+    {
+        // disable mesh renderer
+        GetComponent<MeshRenderer>().enabled = b;
+        // disable collider
+        GetComponent<Collider>().enabled = b;
     }
 }
