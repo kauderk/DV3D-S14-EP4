@@ -4,12 +4,11 @@ using UnityEngine;
 using Zenject;
 using Random = UnityEngine.Random;
 
-public class PathGenerator : IInitializable, ITickable
+public class PathGenerator : IInitializable, ITickable, IDisposable
 {
     private readonly IUserInput _userInput = null;
     private readonly Settings _settings = null;
     private readonly Stopwatch _stopwatch = null;
-    private readonly Stopwatch _runningStopwatch = null;
     private Transform _spawnTo = null;
     private Vector3 _crystalSpawnOffset = default;
     private Camera _camera = null;
@@ -27,26 +26,26 @@ public class PathGenerator : IInitializable, ITickable
         _userInput = userInput;
         _settings = settings;
 
+        _userInput.OnBeforePress += OnBeforePress;
+        PoolsManager.OnBeforePress += OnBeforePress;
         _userInput.OnPress += EnableCreation;
         _stopwatch = new Stopwatch(CREATION_RATE);
-        _runningStopwatch = new Stopwatch(5f);
     }
 
     public void Initialize()
     {
         PopulatePools();
         InitializeData();
-        GenerateStartPath();
+        //GenerateStartPath();
     }
 
     public void Tick()
     {
-        if (!_runningStopwatch.IsElapsed)
-            if (_isEnabled && _stopwatch.IsElapsed)
-            {
-                Generate();
-                _stopwatch.Reset();
-            }
+        if (_isEnabled && _stopwatch.IsElapsed)
+        {
+            Generate();
+            _stopwatch.Reset();
+        }
     }
 
     private void PopulatePools()
@@ -63,7 +62,7 @@ public class PathGenerator : IInitializable, ITickable
         _camera = Camera.main;
     }
 
-    private void GenerateStartPath()
+    public void GenerateStartPath()
     {
         Generate(Vector3.right);
 
@@ -76,6 +75,16 @@ public class PathGenerator : IInitializable, ITickable
         _stopwatch.Reset();
         _isEnabled = true;
         _userInput.OnPress -= EnableCreation;
+    }
+    private void OnBeforePress()
+    {
+        _spawnTo.position = Vector3.zero;
+        GenerateStartPath();
+    }
+    public void Dispose()
+    {
+        PoolsManager.OnBeforePress -= OnBeforePress;
+        _userInput.OnBeforePress -= OnBeforePress;
     }
 
     private void Generate() =>

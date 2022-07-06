@@ -4,4 +4,5 @@ using Zenject;
 public interface IUserInput
 {
     event Action OnPress;
+    event Action OnBeforePress;
 }

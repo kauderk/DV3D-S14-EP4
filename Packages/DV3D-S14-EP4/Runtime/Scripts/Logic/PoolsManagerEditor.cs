@@ -18,6 +18,10 @@ public class PoolsManagerEditor : Editor
         {
             script.ReleaseAll();
         }
+        if (GUILayout.Button("GenerateStartPath", GUILayout.Height(40)))
+        {
+            script.BeforePress();
+        }
     }
 }
 #endif

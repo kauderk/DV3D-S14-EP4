@@ -12,4 +12,9 @@ public class PoolsManager : SingletonScriptableObject<PoolsManager>
     {
         OnReleaseAll?.Invoke(WhiteList);
     }
+    public static Action OnBeforePress;
+    public void BeforePress()
+    {
+        OnBeforePress?.Invoke();
+    }
 }
