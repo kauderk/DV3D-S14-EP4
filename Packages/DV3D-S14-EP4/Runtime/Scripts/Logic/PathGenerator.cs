@@ -34,13 +34,14 @@ public class PathGenerator : IInitializable, ITickable, IDisposable
         _userInput.OnPress += EnableCreation;
         _stopwatch = new Stopwatch(CREATION_RATE);
 
-        _fakeAsyncStopwatch = new FakeAsyncStopwatch(GenerateRandom, Generate, CRYSTALS_START_COUNT);
+        _fakeAsyncStopwatch = new FakeAsyncStopwatch(GenerateRandom, Generate, OnFinishedPathCreation, CRYSTALS_START_COUNT);
     }
 
     public void Initialize()
     {
         PopulatePools();
         InitializeData();
+        OnBeforePressManagers(); // hardcoded for now
         //GenerateStartPath();
     }
 
@@ -78,11 +79,18 @@ public class PathGenerator : IInitializable, ITickable, IDisposable
         _isEnabled = true;
         _userInput.OnPress -= EnableCreation;
     }
+
     private void OnBeforePressManagers()
     {
         _spawnTo.position = Vector3.zero;
         _fakeAsyncStopwatch.HardReset();
     }
+
+    private void OnFinishedPathCreation()
+    {
+        EnableCreation();
+    }
+
     private void OnBeforePress()
     {
         Generate(Vector3.right);
@@ -146,12 +154,14 @@ public class PathGenerator : IInitializable, ITickable, IDisposable
         private float startPathCreationRate = .25f;
         private float countTarget = 50;
         // create callbacks
-        public static Action OnUpdateValue;
         public static Action<Vector3> OnCountCero;
+        public static Action OnUpdateValue;
+        public static Action OnFinished;
 
         public FakeAsyncStopwatch(
             Action _CountCero,
             Action<Vector3> _UpdateIndex,
+            Action _Finished,
             int _countTarget,
             float _startPathCreationRate = .25f
         )
@@ -186,6 +196,7 @@ public class PathGenerator : IInitializable, ITickable, IDisposable
                     }
                     else
                     {
+                        OnFinished?.Invoke();
                         return finished = true;
                     }
                     index++;
