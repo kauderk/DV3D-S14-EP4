@@ -2,11 +2,12 @@
 
 public class Stopwatch
 {
-    private readonly float _duration = 0f;
+    public float Duration { get; private set; } = 0;
+
     private float _timestamp = 0f;
     private bool _isElapsed = false;
 
-    public bool IsElapsed 
+    public bool IsElapsed
     {
         get
         {
@@ -14,17 +15,18 @@ public class Stopwatch
             if (_isElapsed)
                 return true;
 
-            _isElapsed = Time.time - _timestamp > _duration;
+            _isElapsed = Time.time - _timestamp > Duration;
 
             return _isElapsed;
         }
     }
-    
-    public Stopwatch(float duration) =>
-        _duration = duration;
 
-    public void Reset()
+    public Stopwatch(float duration) =>
+        Duration = duration;
+
+    public void Reset(float duration_ = 0f)
     {
+        Duration = duration_ <= 0 ? Duration : duration_;
         _timestamp = Time.time;
         _isElapsed = false;
     }

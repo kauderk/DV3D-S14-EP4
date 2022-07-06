@@ -9,10 +9,16 @@ public class PathGenerator : IInitializable, ITickable, IDisposable
     private readonly IUserInput _userInput = null;
     private readonly Settings _settings = null;
     private readonly Stopwatch _stopwatch = null;
+    private readonly Stopwatch startStopwatch = null;
     private Transform _spawnTo = null;
     private Vector3 _crystalSpawnOffset = default;
     private Camera _camera = null;
     private bool _isEnabled = false;
+    private int startPath = 0;
+    private bool finishedStartPath = false;
+    private bool allowed2StartPath = false;
+    private float startPathCreationRate = .25f;
+
 
     private const float CREATION_RATE = 0.1f;
     private const int TILES_START_COUNT = 100;
@@ -23,13 +29,16 @@ public class PathGenerator : IInitializable, ITickable, IDisposable
 
     public PathGenerator(IUserInput userInput, Settings settings)
     {
+
         _userInput = userInput;
         _settings = settings;
 
+        PoolsManager.OnBeforePress += OnBeforePressManagers;
         _userInput.OnBeforePress += OnBeforePress;
-        PoolsManager.OnBeforePress += OnBeforePress;
         _userInput.OnPress += EnableCreation;
         _stopwatch = new Stopwatch(CREATION_RATE);
+
+        startStopwatch = new Stopwatch(startPathCreationRate);
     }
 
     public void Initialize()
@@ -41,10 +50,28 @@ public class PathGenerator : IInitializable, ITickable, IDisposable
 
     public void Tick()
     {
-        if (_isEnabled && _stopwatch.IsElapsed)
+
+        if (finishedStartPath && _isEnabled && _stopwatch.IsElapsed)
         {
-            Generate();
+            GenerateRandom();
             _stopwatch.Reset();
+        }
+        else if (!finishedStartPath && allowed2StartPath && startStopwatch.IsElapsed)
+        {
+            if (startPath == 0) // not even started yet
+            {
+                Generate(Vector3.right);
+            }
+            else if (startPath < PREGENERATED_TILES_COUNT)
+            {
+                GenerateRandom();
+            }
+            else
+            {
+                finishedStartPath = true;
+            }
+            startPath++;
+            startStopwatch.Reset(startStopwatch.Duration - .05f);
         }
     }
 
@@ -62,32 +89,38 @@ public class PathGenerator : IInitializable, ITickable, IDisposable
         _camera = Camera.main;
     }
 
-    public void GenerateStartPath()
-    {
-        Generate(Vector3.right);
-
-        for (int i = 0; i < PREGENERATED_TILES_COUNT; i++)
-            Generate();
-    }
-
     private void EnableCreation()
     {
         _stopwatch.Reset();
         _isEnabled = true;
         _userInput.OnPress -= EnableCreation;
     }
-    private void OnBeforePress()
+    private void OnBeforePressManagers()
     {
         _spawnTo.position = Vector3.zero;
-        GenerateStartPath();
+        startPath = 0;
+        allowed2StartPath = true;
+        finishedStartPath = false;
+        startStopwatch.Reset(startPathCreationRate);
+    }
+    private void OnBeforePress()
+    {
+        Generate(Vector3.right);
+
+        for (int i = 0; i < PREGENERATED_TILES_COUNT; i++)
+            GenerateRandom();
+
+        _userInput.OnBeforePress -= OnBeforePress;
+        _userInput.OnPress -= EnableCreation;
     }
     public void Dispose()
     {
-        PoolsManager.OnBeforePress -= OnBeforePress;
+        PoolsManager.OnBeforePress -= OnBeforePressManagers;
         _userInput.OnBeforePress -= OnBeforePress;
+        _userInput.OnPress -= EnableCreation;
     }
 
-    private void Generate() =>
+    private void GenerateRandom() =>
         Generate(Random.value <= 0.5f ? Vector3.forward : Vector3.right);
 
     private void Generate(Vector3 direction)

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using ToolBox.Pools;
 using UnityEngine;
@@ -32,21 +33,18 @@ public class Pickupable : MonoBehaviour
     // an Event? or a method? An interface is a better choice.
     public int Take()
     {
-        StartCoroutine("PlayPickupSound"); // I NEED YOU ASYNC!
+        StartCoroutine(SecondsCoroutine(pickupSound.clip.length + .2f)); // I NEED YOU ASYNC!
         return _score;
     }
 
-    IEnumerator<WaitForSeconds> WaitForSeconds(float seconds)
+    IEnumerator SecondsCoroutine(float seconds)
     {
         pickupSound.Play();
         // disable mesh renderer
         GetComponent<MeshRenderer>().enabled = false;
         // disable collider
         GetComponent<Collider>().enabled = false;
-        // disable rigidbody
-        GetComponent<Rigidbody>().isKinematic = true;
         yield return new WaitForSeconds(seconds);
         gameObject.Release();
-
     }
 }
