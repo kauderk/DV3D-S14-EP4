@@ -13,6 +13,7 @@ namespace ScriptableObjects
         #region config
 
         private static readonly float SEMITONES_TO_PITCH_CONVERSION_UNIT = 1.05946f;
+        public bool Loop = true;
         public AudioClip[] clips;
 
         public Vector2 volume = new Vector2(0.5f, 0.5f);
@@ -83,7 +84,7 @@ namespace ScriptableObjects
                 init();
                 Debug.Log("source was null on play, it's better to create a new one");
             }
-            Play(previewer);
+            Play(previewer, Loop);
         }
 
         public void StopPreview()
@@ -133,7 +134,7 @@ namespace ScriptableObjects
             return clip;
         }
 
-        public AudioSource Play(AudioSource audioSourceParam = null)
+        public AudioSource Play(AudioSource audioSourceParam = null, bool loop = true)
         {
             if (clips.Length == 0)
             {
@@ -154,6 +155,7 @@ namespace ScriptableObjects
             source.pitch = useSemitones
                 ? Mathf.Pow(SEMITONES_TO_PITCH_CONVERSION_UNIT, Random.Range(semitones.x, semitones.y))
                 : Random.Range(pitch.x, pitch.y);
+            source.loop = loop;
 
             source.Play();
 
