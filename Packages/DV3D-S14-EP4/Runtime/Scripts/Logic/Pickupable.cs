@@ -7,6 +7,13 @@ public class Pickupable : MonoBehaviour
 {
     [SerializeField] private int _score = 3;
 
+    [SerializeField] private AudioSource pickupSound;
+
+    private void Awake()
+    {
+        pickupSound = GetComponent<AudioSource>();
+    }
+
     private void OnEnable()
     {
         PoolsManager.OnReleaseAll += OnReleaseAll;
@@ -22,9 +29,24 @@ public class Pickupable : MonoBehaviour
             gameObject.Release();
     }
 
+    // an Event? or a method? An interface is a better choice.
     public int Take()
     {
-        gameObject.Release();
+        StartCoroutine("PlayPickupSound"); // I NEED YOU ASYNC!
         return _score;
+    }
+
+    IEnumerator<WaitForSeconds> WaitForSeconds(float seconds)
+    {
+        pickupSound.Play();
+        // disable mesh renderer
+        GetComponent<MeshRenderer>().enabled = false;
+        // disable collider
+        GetComponent<Collider>().enabled = false;
+        // disable rigidbody
+        GetComponent<Rigidbody>().isKinematic = true;
+        yield return new WaitForSeconds(seconds);
+        gameObject.Release();
+
     }
 }

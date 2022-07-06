@@ -49,7 +49,7 @@ namespace ScriptableObjects
                 // play the audio
                 PlayPreview();
                 // after 3 seconsds, disable the gameobject
-                Destroy(go, 3);
+                //Destroy(go, 3);
                 return;
             }
             InitInEditorMode();
