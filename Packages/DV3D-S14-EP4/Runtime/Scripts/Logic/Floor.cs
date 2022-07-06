@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using ToolBox.Pools;
 using UnityEngine;
 
@@ -5,7 +6,7 @@ using UnityEngine;
 public class Floor : MonoBehaviour, IPoolable
 {
     [SerializeField] private TriggerDetection _triggerDetection = null;
-    
+
     private DirectionalMover _mover = null;
     private const float TIME_BEFORE_FALL = 1f;
     private const float TIME_BEFORE_RELEASE = 2f;
@@ -13,11 +14,23 @@ public class Floor : MonoBehaviour, IPoolable
     private void Awake() =>
         _mover = GetComponent<DirectionalMover>();
 
-    private void OnEnable() =>
+    private void OnReleaseAll(string WhiteList)
+    {
+        if (!gameObject.tag.Equals(WhiteList))
+            gameObject.Release();
+    }
+
+    private void OnEnable()
+    {
+        PoolsManager.OnReleaseAll += OnReleaseAll;
         _triggerDetection.OnExit += OnExit;
-    
-    private void OnDisable() =>
+    }
+
+    private void OnDisable()
+    {
+        PoolsManager.OnReleaseAll -= OnReleaseAll;
         _triggerDetection.OnExit -= OnExit;
+    }
 
     private void OnExit(Collider other) =>
         Invoke(nameof(EnableMover), TIME_BEFORE_FALL);
