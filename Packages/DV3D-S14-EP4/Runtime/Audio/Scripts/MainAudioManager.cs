@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 // https://forum.unity.com/threads/solved-but-unhappy-scriptableobject-awake-never-execute.488468/#post-3188178
@@ -13,22 +14,13 @@ namespace ScriptableObjects
         #region config
 
         private static readonly float SEMITONES_TO_PITCH_CONVERSION_UNIT = 1.05946f;
-        public bool Loop = true;
-        public AudioClip[] clips;
 
         public Vector2 volume = new Vector2(0.5f, 0.5f);
 
-        //Pitch / Semitones
-        public bool useSemitones;
-
-        public Vector2Int semitones = new Vector2Int(0, 0);
-
-        public Vector2 pitch = new Vector2(1, 1);
-
-        private SoundClipPlayOrder playOrder;
-
-        private int playIndex = 0;
-
+        public List<InputOutputData> Background = new List<InputOutputData>();
+        public List<InputOutputData> Pickups = new List<InputOutputData>();
+        public List<InputOutputData> Fails = new List<InputOutputData>();
+        public List<InputOutputData> EpicFails = new List<InputOutputData>();
         #endregion
 
         #region PreviewCode
@@ -47,10 +39,7 @@ namespace ScriptableObjects
                 // I don't want to chek if it already exist but Unity gives me no other way to do it.
                 var go = new GameObject("AudioPreview");
                 previewer = go.AddComponent<AudioSource>();
-                // play the audio
                 PlayPreview();
-                // after 3 seconsds, disable the gameobject
-                //Destroy(go, 3);
                 return;
             }
             InitInEditorMode();
@@ -63,7 +52,6 @@ namespace ScriptableObjects
                 .CreateGameObjectWithHideFlags("AudioPreview", HideFlags.HideAndDontSave,
                     typeof(AudioSource))
                 .GetComponent<AudioSource>();
-            // Debug.Log("isEditor");
 #endif
         }
 
@@ -84,7 +72,7 @@ namespace ScriptableObjects
                 init();
                 Debug.Log("source was null on play, it's better to create a new one");
             }
-            Play(previewer, Loop);
+            Play(previewer, Background[0].Other.Loop);
         }
 
         public void StopPreview()
@@ -99,44 +87,47 @@ namespace ScriptableObjects
 
         public void SyncPitchAndSemitones()
         {
-            if (useSemitones)
+            if (Background[0].Other.UseSemitones)
             {
-                pitch.x = Mathf.Pow(SEMITONES_TO_PITCH_CONVERSION_UNIT, semitones.x);
-                pitch.y = Mathf.Pow(SEMITONES_TO_PITCH_CONVERSION_UNIT, semitones.y);
+                Background[0].Other.Pitch.x = Mathf.Pow(SEMITONES_TO_PITCH_CONVERSION_UNIT, Background[0].Other.Semitones.x);
+                Background[0].Other.Pitch.y = Mathf.Pow(SEMITONES_TO_PITCH_CONVERSION_UNIT, Background[0].Other.Semitones.y);
             }
             else
             {
-                semitones.x = Mathf.RoundToInt(Mathf.Log10(pitch.x) / Mathf.Log10(SEMITONES_TO_PITCH_CONVERSION_UNIT));
-                semitones.y = Mathf.RoundToInt(Mathf.Log10(pitch.y) / Mathf.Log10(SEMITONES_TO_PITCH_CONVERSION_UNIT));
+                Background[0].Other.Semitones.x = Mathf.RoundToInt(Mathf.Log10(Background[0].Other.Pitch.x) / Mathf.Log10(SEMITONES_TO_PITCH_CONVERSION_UNIT));
+                Background[0].Other.Semitones.y = Mathf.RoundToInt(Mathf.Log10(Background[0].Other.Pitch.y) / Mathf.Log10(SEMITONES_TO_PITCH_CONVERSION_UNIT));
             }
         }
 
         private AudioClip GetAudioClip()
         {
+            var playIndex = Background[0].Other.PlayIndex;
+            var length = Background.Count;
             // get current clip
-            var clip = clips[playIndex >= clips.Length ? 0 : playIndex];
+            var clip = Background[playIndex >= length ? 0 : playIndex];
 
             // find next clip
-            switch (playOrder)
+            switch (Background[0].Other.PlayOrder)
             {
                 case SoundClipPlayOrder.in_order:
-                    playIndex = (playIndex + 1) % clips.Length;
+                    playIndex = (playIndex + 1) % length;
                     break;
                 case SoundClipPlayOrder.random:
-                    playIndex = Random.Range(0, clips.Length);
+                    playIndex = Random.Range(0, length);
                     break;
                 case SoundClipPlayOrder.reverse:
-                    playIndex = (playIndex + clips.Length - 1) % clips.Length;
+                    playIndex = (playIndex + length - 1) % length;
                     break;
             }
+            Background[0].Other.PlayIndex = playIndex;
 
             // return clip
-            return clip;
+            return Background[0].Clips;
         }
 
         public AudioSource Play(AudioSource audioSourceParam = null, bool loop = true)
         {
-            if (clips.Length == 0)
+            if (Background[0].Clips.length == 0)
             {
                 Debug.Log($"Missing sound clips for {name}");
                 return null;
@@ -151,10 +142,11 @@ namespace ScriptableObjects
 
             // set source config:
             source.clip = GetAudioClip();
+            source.time = Background[0].Other.Persist ? Background[0].Other.Timestamp : 0;
             source.volume = Random.Range(volume.x, volume.y);
-            source.pitch = useSemitones
-                ? Mathf.Pow(SEMITONES_TO_PITCH_CONVERSION_UNIT, Random.Range(semitones.x, semitones.y))
-                : Random.Range(pitch.x, pitch.y);
+            source.pitch = Background[0].Other.UseSemitones
+                ? Mathf.Pow(SEMITONES_TO_PITCH_CONVERSION_UNIT, Random.Range(Background[0].Other.Semitones.x, Background[0].Other.Semitones.y))
+                : Random.Range(Background[0].Other.Pitch.x, Background[0].Other.Pitch.y);
             source.loop = loop;
 
             source.Play();
@@ -174,11 +166,36 @@ namespace ScriptableObjects
             return source;
         }
 
-        enum SoundClipPlayOrder
-        {
-            random,
-            in_order,
-            reverse
-        }
     }
+}
+
+public enum SoundClipPlayOrder
+{
+    in_order,
+    reverse,
+    random
+}
+
+[System.Serializable]
+public class InputOutputData
+{
+    public string Id;
+    public AudioClip Clips;
+    public Other Other = new Other();
+}
+[System.Serializable]
+public class Other
+{
+    public bool Persist = false;
+    public float Timestamp = 0.0f;
+    public bool Loop = true;
+    public bool UseSemitones;
+
+    public Vector2Int Semitones = new Vector2Int(0, 0);
+
+    public Vector2 Pitch = new Vector2(1, 1);
+
+    public SoundClipPlayOrder PlayOrder;
+
+    public int PlayIndex = 0;
 }
