@@ -111,7 +111,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c72bce3870496e4fb96d4e92639f589, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _score: 0
+  _score_: 3
   pickupSound: {fileID: 2060408432416476272}
 --- !u!82 &2060408432416476272
 AudioSource:
@@ -120,7 +120,7 @@ AudioSource:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7278090978750367547}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 2fda922e00e58ea4786b4b2e0584413f, type: 3}

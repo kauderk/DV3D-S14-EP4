@@ -50,7 +50,8 @@ public class Pickupable : MonoBehaviour
 
     IEnumerator SecondsCoroutine(float seconds)
     {
-        pickupSound.Play();
+        Debug.Log("Crystal Pickuped up!");
+        //pickupSound.Play();
         ToggleVisivility(false);
         yield return new WaitForSeconds(seconds);
         gameObject.Release();

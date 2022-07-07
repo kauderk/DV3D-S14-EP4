@@ -29,6 +29,7 @@ MonoBehaviour:
       Pitch: {x: 1, y: 1}
       PlayOrder: 0
       PlayIndex: 0
+      Volume: {x: 0.5, y: 0.5}
   Pickups:
   - Id: base
     Clip: {fileID: 8300000, guid: 2fda922e00e58ea4786b4b2e0584413f, type: 3}
@@ -44,6 +45,7 @@ MonoBehaviour:
       Pitch: {x: 1, y: 1}
       PlayOrder: 0
       PlayIndex: 0
+      Volume: {x: 0.14, y: 0.23}
   Fails:
   - Id: nice-try
     Clip: {fileID: 8300000, guid: aa34f8f16f8f5434eb3ac43b2f4b7c09, type: 3}
@@ -59,6 +61,7 @@ MonoBehaviour:
       Pitch: {x: 1, y: 1}
       PlayOrder: 0
       PlayIndex: 0
+      Volume: {x: 0.5, y: 0.5}
   - Id: bad-day
     Clip: {fileID: 8300000, guid: c8a98e664f357a041bc8e7ed0b74ab0b, type: 3}
     Source: {fileID: 0}
@@ -73,6 +76,7 @@ MonoBehaviour:
       Pitch: {x: 1, y: 1}
       PlayOrder: 0
       PlayIndex: 0
+      Volume: {x: 0.5, y: 0.5}
   EpicFails:
   - Id: you-suck
     Clip: {fileID: 8300000, guid: d9aa22dc5fa408d47b4e8687063357ea, type: 3}
@@ -88,3 +92,4 @@ MonoBehaviour:
       Pitch: {x: 1, y: 1}
       PlayOrder: 0
       PlayIndex: 0
+      Volume: {x: 0.5, y: 0.5}

@@ -34,8 +34,7 @@ namespace ScriptableObjects
 
         void OnEnable()
         {
-            MainManager.OnGameInitialized += init;
-            InitInEditorMode();
+            MainManager.OnGameInitialized += OnLoad;
         }
 
         private void OnLoad()
@@ -81,7 +80,7 @@ namespace ScriptableObjects
         void OnDisable()
         {
             OnScoreChanged -= ScoreChanged;
-            MainManager.OnGameInitialized -= init;
+            MainManager.OnGameInitialized -= OnLoad;
             foreach (var list in audioMoods.Values)
                 foreach (var IO in list)
                 {
@@ -113,6 +112,7 @@ namespace ScriptableObjects
                 Debug.Log("No Audio found for score " + score);
                 return;
             }
+            // BE Carefull, give it a key, else it will span the hell out of it
             Play(IO_Audio);
         }
 
@@ -135,29 +135,12 @@ namespace ScriptableObjects
             return list.Find(IO => IO.Id == id);
         }
 
-
-
-        private void init()
-        {
-            if (Application.isPlaying)
-            {
-                OnLoad();
-                return;
-            }
-            InitInEditorMode();
-        }
-
-        private void InitInEditorMode()
-        {
-
-        }
-
         public void PlayPreview()
         {
             var IO = GetIO_Audio(AudioMood.Background, "base");
             if (!IO.Clip)
             {
-                init();
+                OnLoad();
                 Debug.Log("source was null on play, it's better to create a new one");
             }
             IO = GetIO_Audio(AudioMood.Background, "base");
@@ -175,29 +158,30 @@ namespace ScriptableObjects
 
         #endregion
 
-        public void SyncPitchAndSemitones()
+        public void SyncPitchAndSemitones(InputOutputData IO_Audio)
         {
-            if (Background[0].Other.UseSemitones)
+            var other = IO_Audio.Other;
+            if (other.UseSemitones)
             {
-                Background[0].Other.Pitch.x = Mathf.Pow(SEMITONES_TO_PITCH_CONVERSION_UNIT, Background[0].Other.Semitones.x);
-                Background[0].Other.Pitch.y = Mathf.Pow(SEMITONES_TO_PITCH_CONVERSION_UNIT, Background[0].Other.Semitones.y);
+                other.Pitch.x = Mathf.Pow(SEMITONES_TO_PITCH_CONVERSION_UNIT, other.Semitones.x);
+                other.Pitch.y = Mathf.Pow(SEMITONES_TO_PITCH_CONVERSION_UNIT, other.Semitones.y);
             }
             else
             {
-                Background[0].Other.Semitones.x = Mathf.RoundToInt(Mathf.Log10(Background[0].Other.Pitch.x) / Mathf.Log10(SEMITONES_TO_PITCH_CONVERSION_UNIT));
-                Background[0].Other.Semitones.y = Mathf.RoundToInt(Mathf.Log10(Background[0].Other.Pitch.y) / Mathf.Log10(SEMITONES_TO_PITCH_CONVERSION_UNIT));
+                other.Semitones.x = Mathf.RoundToInt(Mathf.Log10(other.Pitch.x) / Mathf.Log10(SEMITONES_TO_PITCH_CONVERSION_UNIT));
+                other.Semitones.y = Mathf.RoundToInt(Mathf.Log10(other.Pitch.y) / Mathf.Log10(SEMITONES_TO_PITCH_CONVERSION_UNIT));
             }
         }
 
-        private AudioClip GetAudioClip()
+        private AudioClip GetAudioClip(InputOutputData IO_Audio)
         {
-            var playIndex = Background[0].Other.PlayIndex;
+            var playIndex = IO_Audio.Other.PlayIndex;
             var length = Background.Count;
             // get current clip
             var clip = Background[playIndex >= length ? 0 : playIndex];
 
             // find next clip
-            switch (Background[0].Other.PlayOrder)
+            switch (IO_Audio.Other.PlayOrder)
             {
                 case SoundClipPlayOrder.in_order:
                     playIndex = (playIndex + 1) % length;
@@ -209,13 +193,13 @@ namespace ScriptableObjects
                     playIndex = (playIndex + length - 1) % length;
                     break;
             }
-            Background[0].Other.PlayIndex = playIndex;
+            IO_Audio.Other.PlayIndex = playIndex;
 
             // return clip
-            return Background[0].Clip;
+            return IO_Audio.Clip;
         }
 
-        public AudioSource Play(InputOutputData IO_Audio, AudioSource audioSourceParam = null)
+        public AudioSource Play(InputOutputData IO_Audio)
         {
             if (IO_Audio.Clip.length == 0)
             {
@@ -223,7 +207,7 @@ namespace ScriptableObjects
                 return null;
             }
 
-            var source = audioSourceParam;
+            var source = IO_Audio.Source;
             if (source == null)
             {
                 var _obj = new GameObject("Sound", typeof(AudioSource));
@@ -231,9 +215,10 @@ namespace ScriptableObjects
             }
 
             // set source config:
-            source.clip = GetAudioClip();
+            var vol = IO_Audio.Other.Volume;
+            source.clip = GetAudioClip(IO_Audio);
             source.time = IO_Audio.Other.Persist ? IO_Audio.Other.Timestamp : 0;
-            source.volume = Random.Range(volume.x, volume.y);
+            source.volume = Random.Range(vol.x, vol.y);
             source.pitch = IO_Audio.Other.UseSemitones
                 ? Mathf.Pow(SEMITONES_TO_PITCH_CONVERSION_UNIT, Random.Range(IO_Audio.Other.Semitones.x, IO_Audio.Other.Semitones.y))
                 : Random.Range(IO_Audio.Other.Pitch.x, IO_Audio.Other.Pitch.y);
@@ -248,12 +233,12 @@ namespace ScriptableObjects
 #if UNITY_EDITOR
             if (source != IO_Audio.Source)
             {
-                DestroyImmediate(source.gameObject);
+                Destroy(source.gameObject);
             }
 #else
-                Destroy(source.gameObject, source.clip.length / source.pitch);
+                DestroyImmediate(source.gameObject);
 #endif
-            return source;
+            return IO_Audio.Source = source;
         }
 
     }
@@ -299,4 +284,6 @@ public class Other
     public SoundClipPlayOrder PlayOrder;
 
     public int PlayIndex = 0;
+
+    public Vector2 Volume = new Vector2(0.5f, 0.5f);
 }
