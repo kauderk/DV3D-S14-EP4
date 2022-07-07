@@ -308,11 +308,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!4 &721229502 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5526674243972783689, guid: ca6070e4423d41844a07d883af287be8, type: 3}
-  m_PrefabInstance: {fileID: 4468539695932943739}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &798657816 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5660957853364489339, guid: da903eca23e15b5498bb39524951b47e, type: 3}
@@ -579,7 +574,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c680b10c732114a8be6a5e3829499b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _transform: {fileID: 721229502}
 --- !u!81 &1329468442
 AudioListener:
   m_ObjectHideFlags: 0
