@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 using System;
-using UnityEngine.Serialization;
+using System.Linq;
+
 // https://forum.unity.com/threads/solved-but-unhappy-scriptableobject-awake-never-execute.488468/#post-3188178
 
 namespace ScriptableObjects
@@ -29,18 +30,28 @@ namespace ScriptableObjects
         #region PreviewCode
         private AudioSource previewer;
 
-
         public static Action<int, AudioMood> OnScoreChanged;
 
         void OnEnable()
         {
-            OnScoreChanged += ScoreChanged;
             MainManager.OnGameInitialized += init;
             InitInEditorMode();
         }
+
+        private void OnLoad()
+        {
+            // so far this will be manual labor, hopo to find the right way to do this
+            audioMoods[AudioMood.Background] = Background;
+            audioMoods[AudioMood.Pickups] = Pickups;
+            audioMoods[AudioMood.Fails] = Fails;
+            audioMoods[AudioMood.EpicFails] = EpicFails;
+
+            OnScoreChanged += ScoreChanged;
+        }
+
         void OnDisable()
         {
-            OnScoreChanged += ScoreChanged;
+            OnScoreChanged -= ScoreChanged;
             MainManager.OnGameInitialized -= init;
             if (previewer)
             {
@@ -52,8 +63,35 @@ namespace ScriptableObjects
 
         void ScoreChanged(int score, AudioMood mood)
         {
-            var x = audioMoods[mood].Find(x => x.Other.Threshold > score);
+            // get the value of the mood form the dictionary
+            var list = audioMoods.TryGetValue(mood, out List<InputOutputData> value) ? value : null;
+            if (list == null)
+            {
+                Debug.Log("No Audio list found for mood " + mood);
+                return;
+            }
+            // reverse the list
+            // list.Reverse();
+            // find the first one that is greater than the score
+            var IO_Audio = list.Aggregate(list[0],
+                 (acc, crr) =>
+                 {
+                     if (crr.Other.Threshold >= score)
+                         return crr; // we have a bigger one, return it
+                     return acc; // bad luck, keep going
+                 });
+            if (IO_Audio == null)
+            {
+                Debug.Log("No Audio found for score " + score);
+                return;
+            }
+            PlayWithData(IO_Audio);
+        }
 
+        private void PlayWithData(InputOutputData IO_Audio)
+        {
+            previewer.clip = IO_Audio.Clip;
+            Play(IO_Audio, previewer);
         }
 
         private void init()
@@ -64,6 +102,7 @@ namespace ScriptableObjects
                 var go = new GameObject("AudioPreview");
                 previewer = go.AddComponent<AudioSource>();
                 PlayPreview();
+                OnLoad();
                 return;
             }
             InitInEditorMode();
@@ -76,6 +115,7 @@ namespace ScriptableObjects
                 .CreateGameObjectWithHideFlags("AudioPreview", HideFlags.HideAndDontSave,
                     typeof(AudioSource))
                 .GetComponent<AudioSource>();
+            OnLoad();
 #endif
         }
 
@@ -86,7 +126,7 @@ namespace ScriptableObjects
                 init();
                 Debug.Log("source was null on play, it's better to create a new one");
             }
-            Play(previewer, Background[0].Other.Loop);
+            PlayWithData(Background[0]);
         }
 
         public void StopPreview()
@@ -136,12 +176,12 @@ namespace ScriptableObjects
             Background[0].Other.PlayIndex = playIndex;
 
             // return clip
-            return Background[0].Clips;
+            return Background[0].Clip;
         }
 
-        public AudioSource Play(AudioSource audioSourceParam = null, bool loop = true)
+        public AudioSource Play(InputOutputData IO_Audio, AudioSource audioSourceParam = null)
         {
-            if (Background[0].Clips.length == 0)
+            if (IO_Audio.Clip.length == 0)
             {
                 Debug.Log($"Missing sound clips for {name}");
                 return null;
@@ -156,12 +196,12 @@ namespace ScriptableObjects
 
             // set source config:
             source.clip = GetAudioClip();
-            source.time = Background[0].Other.Persist ? Background[0].Other.Timestamp : 0;
+            source.time = IO_Audio.Other.Persist ? IO_Audio.Other.Timestamp : 0;
             source.volume = Random.Range(volume.x, volume.y);
-            source.pitch = Background[0].Other.UseSemitones
-                ? Mathf.Pow(SEMITONES_TO_PITCH_CONVERSION_UNIT, Random.Range(Background[0].Other.Semitones.x, Background[0].Other.Semitones.y))
-                : Random.Range(Background[0].Other.Pitch.x, Background[0].Other.Pitch.y);
-            source.loop = loop;
+            source.pitch = IO_Audio.Other.UseSemitones
+                ? Mathf.Pow(SEMITONES_TO_PITCH_CONVERSION_UNIT, Random.Range(IO_Audio.Other.Semitones.x, IO_Audio.Other.Semitones.y))
+                : Random.Range(IO_Audio.Other.Pitch.x, IO_Audio.Other.Pitch.y);
+            source.loop = IO_Audio.Other.Loop;
 
             source.Play();
 
@@ -194,15 +234,14 @@ public enum AudioMood
     Background,
     Pickups,
     Fails,
-    EpicFails,
-    Automatic
+    EpicFails
 }
 
 [System.Serializable]
 public class InputOutputData
 {
     public string Id;
-    public AudioClip Clips;
+    public AudioClip Clip;
     public Other Other = new Other();
 }
 [System.Serializable]
@@ -212,7 +251,6 @@ public class Other
     public float Timestamp = 0.0f;
     public bool Loop = true;
     //add inspector label
-    [FormerlySerializedAs("Clips")]
     public int Threshold = 1;
     public bool UseSemitones;
 

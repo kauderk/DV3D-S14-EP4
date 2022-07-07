@@ -15,11 +15,12 @@ MonoBehaviour:
   volume: {x: 0.5, y: 0.5}
   Background:
   - Id: base
-    Clips: {fileID: 8300000, guid: bff67af1b2e6fd74ea797b5772983284, type: 3}
+    Clip: {fileID: 8300000, guid: bff67af1b2e6fd74ea797b5772983284, type: 3}
     Other:
       Persist: 0
       Timestamp: 0
       Loop: 1
+      Threshold: -1
       UseSemitones: 1
       Semitones: {x: 0, y: 0}
       Pitch: {x: 1, y: 1}
@@ -27,11 +28,12 @@ MonoBehaviour:
       PlayIndex: 0
   Pickups:
   - Id: base
-    Clips: {fileID: 8300000, guid: 2fda922e00e58ea4786b4b2e0584413f, type: 3}
+    Clip: {fileID: 8300000, guid: 2fda922e00e58ea4786b4b2e0584413f, type: 3}
     Other:
       Persist: 0
       Timestamp: 0
       Loop: 1
+      Threshold: 0
       UseSemitones: 0
       Semitones: {x: 0, y: 0}
       Pitch: {x: 1, y: 1}
@@ -39,22 +41,24 @@ MonoBehaviour:
       PlayIndex: 0
   Fails:
   - Id: nice-try
-    Clips: {fileID: 8300000, guid: aa34f8f16f8f5434eb3ac43b2f4b7c09, type: 3}
+    Clip: {fileID: 8300000, guid: aa34f8f16f8f5434eb3ac43b2f4b7c09, type: 3}
     Other:
       Persist: 0
       Timestamp: 0
       Loop: 1
+      Threshold: 0
       UseSemitones: 0
       Semitones: {x: 0, y: 0}
       Pitch: {x: 1, y: 1}
       PlayOrder: 0
       PlayIndex: 0
   - Id: bad-day
-    Clips: {fileID: 8300000, guid: c8a98e664f357a041bc8e7ed0b74ab0b, type: 3}
+    Clip: {fileID: 8300000, guid: c8a98e664f357a041bc8e7ed0b74ab0b, type: 3}
     Other:
       Persist: 0
       Timestamp: 0
       Loop: 1
+      Threshold: 20
       UseSemitones: 0
       Semitones: {x: 0, y: 0}
       Pitch: {x: 1, y: 1}
@@ -62,11 +66,12 @@ MonoBehaviour:
       PlayIndex: 0
   EpicFails:
   - Id: you-suck
-    Clips: {fileID: 8300000, guid: d9aa22dc5fa408d47b4e8687063357ea, type: 3}
+    Clip: {fileID: 8300000, guid: d9aa22dc5fa408d47b4e8687063357ea, type: 3}
     Other:
       Persist: 0
       Timestamp: 0
       Loop: 1
+      Threshold: 80
       UseSemitones: 0
       Semitones: {x: 0, y: 0}
       Pitch: {x: 1, y: 1}
