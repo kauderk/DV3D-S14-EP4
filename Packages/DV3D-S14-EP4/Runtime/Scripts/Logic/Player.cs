@@ -59,8 +59,14 @@ public class Player : MonoBehaviour
         IncreaseScore(1);
     }
 
-    private void OnObjectDetected(Collider other) =>
-        IncreaseScore(other.GetComponent<Pickupable>().Take());
+    private void OnObjectDetected(Collider other)
+    {
+        var cash = other.GetComponent<Pickupable>().Take();
+        ScriptableObjects.MainAudioManager.OnScoreChanged?.Invoke(_score + cash, AudioMood.Pickups);
+        ScriptableObjects.MainAudioManager.OnScoreChangedThreshold?.Invoke(_score, AudioMood.Wins);
+        ScriptableObjects.MainAudioManager.OnScoreChangedThreshold?.Invoke(_score, AudioMood.Background);
+        IncreaseScore(cash);
+    }
 
     private void OnGroundStateChanged(bool isGrounded)
     {
@@ -70,13 +76,13 @@ public class Player : MonoBehaviour
             OnLose?.Invoke();
             _userInput.OnPress -= ChangeDirection;
             _body.useGravity = true;
+            ScriptableObjects.MainAudioManager.OnScoreChanged?.Invoke(_score, AudioMood.Fails);
         }
     }
 
     private void IncreaseScore(int amount)
     {
         _score += amount;
-        ScriptableObjects.MainAudioManager.OnScoreChanged?.Invoke(_score, AudioMood.Pickups);
         OnScoreChanged?.Invoke(_score);
     }
 }

@@ -16,14 +16,50 @@ MonoBehaviour:
   volume: {x: 0.5, y: 0.5}
   Background:
   - Id: base
+    Clip: {fileID: 8300000, guid: ba5d45b3fd2ba7c4cbc5f8881e09d421, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
+    Other:
+      Persist: 0
+      Timestamp: 0
+      Loop_: 0
+      Threshold: -1
+      PreviousMax: 0
+      PreviousIndex: 0
+      UseSemitones: 1
+      Semitones: {x: 0, y: 0}
+      Pitch: {x: 1, y: 1}
+      PlayOrder: 0
+      PlayIndex: 0
+      Volume: {x: 0.5, y: 0.5}
+  - Id: base
     Clip: {fileID: 8300000, guid: bff67af1b2e6fd74ea797b5772983284, type: 3}
     Source: {fileID: 0}
     GameObj: {fileID: 0}
     Other:
       Persist: 0
       Timestamp: 0
-      Loop: 1
-      Threshold: -1
+      Loop_: 0
+      Threshold: 75
+      PreviousMax: 0
+      PreviousIndex: 0
+      UseSemitones: 1
+      Semitones: {x: 0, y: 0}
+      Pitch: {x: 1, y: 1}
+      PlayOrder: 0
+      PlayIndex: 0
+      Volume: {x: 0.5, y: 0.5}
+  - Id: base
+    Clip: {fileID: 8300000, guid: 5a04c55bef463234c886c15445191a78, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
+    Other:
+      Persist: 0
+      Timestamp: 0
+      Loop_: 0
+      Threshold: 125
+      PreviousMax: 0
+      PreviousIndex: 0
       UseSemitones: 1
       Semitones: {x: 0, y: 0}
       Pitch: {x: 1, y: 1}
@@ -32,14 +68,84 @@ MonoBehaviour:
       Volume: {x: 0.5, y: 0.5}
   Pickups:
   - Id: base
+    Clip: {fileID: 8300000, guid: a7b465592842edf498cfc5c86c9ecd6a, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
+    Other:
+      Persist: 0
+      Timestamp: 0
+      Loop_: 0
+      Threshold: -1
+      PreviousMax: 0
+      PreviousIndex: 0
+      UseSemitones: 0
+      Semitones: {x: 0, y: 0}
+      Pitch: {x: 1, y: 1}
+      PlayOrder: 0
+      PlayIndex: 0
+      Volume: {x: 0.14, y: 0.23}
+  - Id: base
+    Clip: {fileID: 8300000, guid: 6dcc416883ffbbd42ad63c165699f873, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
+    Other:
+      Persist: 0
+      Timestamp: 0
+      Loop_: 0
+      Threshold: 10
+      PreviousMax: 0
+      PreviousIndex: 0
+      UseSemitones: 0
+      Semitones: {x: 0, y: 0}
+      Pitch: {x: 1, y: 1}
+      PlayOrder: 0
+      PlayIndex: 0
+      Volume: {x: 0.14, y: 0.23}
+  - Id: base
+    Clip: {fileID: 8300000, guid: 3e92d41c9978e2745a4744cce2352b49, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
+    Other:
+      Persist: 0
+      Timestamp: 0
+      Loop_: 0
+      Threshold: 20
+      PreviousMax: 0
+      PreviousIndex: 0
+      UseSemitones: 0
+      Semitones: {x: 0, y: 0}
+      Pitch: {x: 1, y: 1}
+      PlayOrder: 0
+      PlayIndex: 0
+      Volume: {x: 0.14, y: 0.23}
+  - Id: base
+    Clip: {fileID: 8300000, guid: d4c1ad85b7e2dd14caf288f5c3699227, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
+    Other:
+      Persist: 0
+      Timestamp: 0
+      Loop_: 0
+      Threshold: 40
+      PreviousMax: 0
+      PreviousIndex: 0
+      UseSemitones: 0
+      Semitones: {x: 0, y: 0}
+      Pitch: {x: 1, y: 1}
+      PlayOrder: 0
+      PlayIndex: 0
+      Volume: {x: 0.14, y: 0.23}
+  - Id: base
     Clip: {fileID: 8300000, guid: 2fda922e00e58ea4786b4b2e0584413f, type: 3}
     Source: {fileID: 0}
     GameObj: {fileID: 0}
     Other:
       Persist: 0
       Timestamp: 0
-      Loop: 1
-      Threshold: 0
+      Loop_: 0
+      Threshold: 100
+      PreviousMax: 0
+      PreviousIndex: 0
       UseSemitones: 0
       Semitones: {x: 0, y: 0}
       Pitch: {x: 1, y: 1}
@@ -47,49 +153,158 @@ MonoBehaviour:
       PlayIndex: 0
       Volume: {x: 0.14, y: 0.23}
   Fails:
-  - Id: nice-try
-    Clip: {fileID: 8300000, guid: aa34f8f16f8f5434eb3ac43b2f4b7c09, type: 3}
-    Source: {fileID: 0}
-    GameObj: {fileID: 0}
-    Other:
-      Persist: 0
-      Timestamp: 0
-      Loop: 1
-      Threshold: 0
-      UseSemitones: 0
-      Semitones: {x: 0, y: 0}
-      Pitch: {x: 1, y: 1}
-      PlayOrder: 0
-      PlayIndex: 0
-      Volume: {x: 0.5, y: 0.5}
-  - Id: bad-day
-    Clip: {fileID: 8300000, guid: c8a98e664f357a041bc8e7ed0b74ab0b, type: 3}
-    Source: {fileID: 0}
-    GameObj: {fileID: 0}
-    Other:
-      Persist: 0
-      Timestamp: 0
-      Loop: 1
-      Threshold: 20
-      UseSemitones: 0
-      Semitones: {x: 0, y: 0}
-      Pitch: {x: 1, y: 1}
-      PlayOrder: 0
-      PlayIndex: 0
-      Volume: {x: 0.5, y: 0.5}
-  EpicFails:
-  - Id: you-suck
+  - Id: 
     Clip: {fileID: 8300000, guid: d9aa22dc5fa408d47b4e8687063357ea, type: 3}
     Source: {fileID: 0}
     GameObj: {fileID: 0}
     Other:
       Persist: 0
       Timestamp: 0
-      Loop: 1
+      Loop_: 0
+      Threshold: -1
+      PreviousMax: 0
+      PreviousIndex: 0
+      UseSemitones: 0
+      Semitones: {x: 0, y: 0}
+      Pitch: {x: 0, y: 0}
+      PlayOrder: 0
+      PlayIndex: 0
+      Volume: {x: 0, y: 0}
+  - Id: 
+    Clip: {fileID: 8300000, guid: b4ed4525f12b216479bbe2af5fbfa71a, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
+    Other:
+      Persist: 0
+      Timestamp: 0
+      Loop_: 0
+      Threshold: 10
+      PreviousMax: 0
+      PreviousIndex: 0
+      UseSemitones: 0
+      Semitones: {x: 0, y: 0}
+      Pitch: {x: 0, y: 0}
+      PlayOrder: 0
+      PlayIndex: 0
+      Volume: {x: 0, y: 0}
+  - Id: 
+    Clip: {fileID: 8300000, guid: aa34f8f16f8f5434eb3ac43b2f4b7c09, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
+    Other:
+      Persist: 0
+      Timestamp: 0
+      Loop_: 0
+      Threshold: 20
+      PreviousMax: 0
+      PreviousIndex: 0
+      UseSemitones: 0
+      Semitones: {x: 0, y: 0}
+      Pitch: {x: 0, y: 0}
+      PlayOrder: 0
+      PlayIndex: 0
+      Volume: {x: 0, y: 0}
+  - Id: 
+    Clip: {fileID: 8300000, guid: 98a166871d0306d46a935449ce72a282, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
+    Other:
+      Persist: 0
+      Timestamp: 0
+      Loop_: 0
+      Threshold: 40
+      PreviousMax: 0
+      PreviousIndex: 0
+      UseSemitones: 0
+      Semitones: {x: 0, y: 0}
+      Pitch: {x: 0, y: 0}
+      PlayOrder: 0
+      PlayIndex: 0
+      Volume: {x: 0, y: 0}
+  - Id: 
+    Clip: {fileID: 8300000, guid: c8a98e664f357a041bc8e7ed0b74ab0b, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
+    Other:
+      Persist: 0
+      Timestamp: 0
+      Loop_: 0
       Threshold: 80
+      PreviousMax: 0
+      PreviousIndex: 0
+      UseSemitones: 0
+      Semitones: {x: 0, y: 0}
+      Pitch: {x: 0, y: 0}
+      PlayOrder: 0
+      PlayIndex: 0
+      Volume: {x: 0, y: 0}
+  EpicFails:
+  - Id: you-suck
+    Clip: {fileID: 8300000, guid: 1d3b38da533b05346b96fd1f12495c87, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
+    Other:
+      Persist: 0
+      Timestamp: 0
+      Loop_: 0
+      Threshold: 160
+      PreviousMax: 0
+      PreviousIndex: 0
       UseSemitones: 0
       Semitones: {x: 0, y: 0}
       Pitch: {x: 1, y: 1}
       PlayOrder: 0
       PlayIndex: 0
       Volume: {x: 0.5, y: 0.5}
+  Wins:
+  - Id: 
+    Clip: {fileID: 8300000, guid: 086d1bc9404090846a05372c2ed037ce, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
+    Other:
+      Persist: 0
+      Timestamp: 0
+      Loop_: 0
+      Threshold: 25
+      PreviousMax: 0
+      PreviousIndex: 0
+      UseSemitones: 0
+      Semitones: {x: 0, y: 0}
+      Pitch: {x: 0, y: 0}
+      PlayOrder: 0
+      PlayIndex: 0
+      Volume: {x: 0, y: 0}
+  - Id: 
+    Clip: {fileID: 8300000, guid: 679c80236b1e90e4989b532c0afb1797, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
+    Other:
+      Persist: 0
+      Timestamp: 0
+      Loop_: 0
+      Threshold: 60
+      PreviousMax: 0
+      PreviousIndex: 0
+      UseSemitones: 0
+      Semitones: {x: 0, y: 0}
+      Pitch: {x: 0, y: 0}
+      PlayOrder: 0
+      PlayIndex: 0
+      Volume: {x: 0, y: 0}
+  - Id: 
+    Clip: {fileID: 8300000, guid: 731b6017d69198448b6a45cc12200d76, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
+    Other:
+      Persist: 0
+      Timestamp: 0
+      Loop_: 0
+      Threshold: 120
+      PreviousMax: 0
+      PreviousIndex: 0
+      UseSemitones: 0
+      Semitones: {x: 0, y: 0}
+      Pitch: {x: 0, y: 0}
+      PlayOrder: 0
+      PlayIndex: 0
+      Volume: {x: 0, y: 0}

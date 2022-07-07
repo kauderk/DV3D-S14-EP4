@@ -21,16 +21,19 @@ namespace ScriptableObjects
         public AudioMixer MainAudioMixer;
         public Vector2 volume = new Vector2(0.5f, 0.5f);
 
+        private int previosBg = 0;
         public List<InputOutputData> Background = new List<InputOutputData>();
         public List<InputOutputData> Pickups = new List<InputOutputData>();
         public List<InputOutputData> Fails = new List<InputOutputData>();
         public List<InputOutputData> EpicFails = new List<InputOutputData>();
+        public List<InputOutputData> Wins = new List<InputOutputData>();
         private Dictionary<AudioMood, List<InputOutputData>> audioMoods = new Dictionary<AudioMood, List<InputOutputData>>();
         #endregion
 
         #region PreviewCode
 
         public static Action<int, AudioMood> OnScoreChanged;
+        public static Action<int, AudioMood> OnScoreChangedThreshold;
 
         void OnEnable()
         {
@@ -74,11 +77,16 @@ namespace ScriptableObjects
             }
 
 
+            previosBg = (previosBg + 1) % audioMoods[AudioMood.Background].Count;
+            Play(GetIO_Audio(AudioMood.Background, previosBg));
+
+            OnScoreChangedThreshold += ScoreChangedThreshold;
             OnScoreChanged += ScoreChanged;
         }
 
         void OnDisable()
         {
+            OnScoreChangedThreshold -= ScoreChangedThreshold;
             OnScoreChanged -= ScoreChanged;
             MainManager.OnGameInitialized -= OnLoad;
             foreach (var list in audioMoods.Values)
@@ -89,6 +97,26 @@ namespace ScriptableObjects
                     else
                         Debug.Log("Audio Source is null on Destroy");
                 }
+        }
+
+        private void ScoreChangedThreshold(int score, AudioMood Mood)
+        {
+            // audioMoods[Mood].ForEach(itm =>
+            // {
+            //     // itm.Other.PreviousMax to be the next threshold
+            //     // get the current index
+            //     var lis = audioMoods[Mood];
+            //     var index = lis.IndexOf(itm);
+            //     // get the next one by it's index wihout stack overflow
+            //     var next = lis[(index + 1) % lis.Count];
+            //     //itm.Other.PreviousMax += next.Other.Threshold;
+            //     // You eranred it!
+            //     if (score > next.Other.Threshold)
+            //     {
+            //         next.Source.Play();
+            //         return; // hop this exits this foreach
+            //     }
+            // });
         }
 
         void ScoreChanged(int score, AudioMood mood)
@@ -127,29 +155,29 @@ namespace ScriptableObjects
             return list;
         }
 
-        private InputOutputData GetIO_Audio(AudioMood mood, string id)
+        private InputOutputData GetIO_Audio(AudioMood mood, int index)
         {
             var list = GetIO_AudioList(mood);
             if (list.Count == 0)
                 return null;
-            return list.Find(IO => IO.Id == id);
+            return list[index];//.Find(IO => IO.Id == id);
         }
 
         public void PlayPreview()
         {
-            var IO = GetIO_Audio(AudioMood.Background, "base");
+            var IO = GetIO_Audio(AudioMood.Background, 0);
             if (!IO.Clip)
             {
                 OnLoad();
                 Debug.Log("source was null on play, it's better to create a new one");
             }
-            IO = GetIO_Audio(AudioMood.Background, "base");
+            IO = GetIO_Audio(AudioMood.Background, 0);
             Play(IO);
         }
 
         public void StopPreview()
         {
-            var IO = GetIO_Audio(AudioMood.Background, "base");
+            var IO = GetIO_Audio(AudioMood.Background, 0);
             if (IO.Source)
             {
                 IO.Source.Stop();
@@ -222,7 +250,7 @@ namespace ScriptableObjects
             source.pitch = IO_Audio.Other.UseSemitones
                 ? Mathf.Pow(SEMITONES_TO_PITCH_CONVERSION_UNIT, Random.Range(IO_Audio.Other.Semitones.x, IO_Audio.Other.Semitones.y))
                 : Random.Range(IO_Audio.Other.Pitch.x, IO_Audio.Other.Pitch.y);
-            source.loop = IO_Audio.Other.Loop;
+            source.loop = IO_Audio.Other.Loop_;
 
             source.Play();
 
@@ -255,7 +283,8 @@ public enum AudioMood
     Background,
     Pickups,
     Fails,
-    EpicFails
+    EpicFails,
+    Wins
 }
 
 [System.Serializable]
@@ -263,27 +292,38 @@ public class InputOutputData
 {
     public string Id;
     public AudioClip Clip;
+    [HideInInspector]
     public AudioSource Source;
+    [HideInInspector]
     public GameObject GameObj;
     public Other Other = new Other();
 }
 [System.Serializable]
-public class Other
+public class Other // Srializables....
 {
+    [HideInInspector]
     public bool Persist = false;
+    [HideInInspector]
     public float Timestamp = 0.0f;
-    public bool Loop = true;
+    [HideInInspector]
+    public bool Loop_ = false;
     //add inspector label
+    [Tooltip("How much more to aquire this sound")]
     public int Threshold = 1;
+    [HideInInspector]
+    public int PreviousMax = 0;
+    [HideInInspector]
+    public int PreviousIndex = 0;
+    [HideInInspector]
     public bool UseSemitones;
-
+    [HideInInspector]
     public Vector2Int Semitones = new Vector2Int(0, 0);
-
+    [HideInInspector]
     public Vector2 Pitch = new Vector2(1, 1);
-
+    [HideInInspector]
     public SoundClipPlayOrder PlayOrder;
-
+    [HideInInspector]
     public int PlayIndex = 0;
-
+    [HideInInspector]
     public Vector2 Volume = new Vector2(0.5f, 0.5f);
 }
