@@ -3,6 +3,7 @@ using UnityEditor;
 #endif
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 using Random = UnityEngine.Random;
 using System;
 using System.Linq;
@@ -15,9 +16,9 @@ namespace ScriptableObjects
     public class MainAudioManager : ScriptableObject
     {
         #region config
-
         private static readonly float SEMITONES_TO_PITCH_CONVERSION_UNIT = 1.05946f;
 
+        public AudioMixer MainAudioMixer;
         public Vector2 volume = new Vector2(0.5f, 0.5f);
 
         public List<InputOutputData> Background = new List<InputOutputData>();
@@ -41,10 +42,25 @@ namespace ScriptableObjects
         private void OnLoad()
         {
             // so far this will be manual labor, hopo to find the right way to do this
-            audioMoods[AudioMood.Background] = Background;
-            audioMoods[AudioMood.Pickups] = Pickups;
-            audioMoods[AudioMood.Fails] = Fails;
-            audioMoods[AudioMood.EpicFails] = EpicFails;
+            // audioMoods[AudioMood.Background] = Background;
+            // audioMoods[AudioMood.Pickups] = Pickups;
+            // audioMoods[AudioMood.Fails] = Fails;
+            // audioMoods[AudioMood.EpicFails] = EpicFails;
+
+
+
+            string[] array = Enum.GetNames(typeof(AudioMood));
+            for (int i = 0; i < array.Length; i++)
+            {
+                var name = array[i];
+                var value = (AudioMood)i;
+
+                // use reflection to get the List<InputOutputData> field value that matches the name
+                var field = GetType().GetField(name);
+                var list = (List<InputOutputData>)field.GetValue(this);
+                audioMoods[value] = list;
+                audioMoods[value].ForEach(IO => IO.Clip = value);
+            }
 
             OnScoreChanged += ScoreChanged;
         }
