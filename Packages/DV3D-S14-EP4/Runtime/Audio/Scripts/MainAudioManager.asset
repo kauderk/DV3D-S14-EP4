@@ -12,10 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7b56d1e3c96676408c6791fd18c7d7e, type: 3}
   m_Name: MainAudioManager
   m_EditorClassIdentifier: 
+  MainAudioMixer: {fileID: 24100000, guid: 9a3d71a01a6667e4b83d75e181c24322, type: 2}
   volume: {x: 0.5, y: 0.5}
   Background:
   - Id: base
     Clip: {fileID: 8300000, guid: bff67af1b2e6fd74ea797b5772983284, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
     Other:
       Persist: 0
       Timestamp: 0
@@ -29,6 +32,8 @@ MonoBehaviour:
   Pickups:
   - Id: base
     Clip: {fileID: 8300000, guid: 2fda922e00e58ea4786b4b2e0584413f, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
     Other:
       Persist: 0
       Timestamp: 0
@@ -42,6 +47,8 @@ MonoBehaviour:
   Fails:
   - Id: nice-try
     Clip: {fileID: 8300000, guid: aa34f8f16f8f5434eb3ac43b2f4b7c09, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
     Other:
       Persist: 0
       Timestamp: 0
@@ -54,6 +61,8 @@ MonoBehaviour:
       PlayIndex: 0
   - Id: bad-day
     Clip: {fileID: 8300000, guid: c8a98e664f357a041bc8e7ed0b74ab0b, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
     Other:
       Persist: 0
       Timestamp: 0
@@ -67,6 +76,8 @@ MonoBehaviour:
   EpicFails:
   - Id: you-suck
     Clip: {fileID: 8300000, guid: d9aa22dc5fa408d47b4e8687063357ea, type: 3}
+    Source: {fileID: 0}
+    GameObj: {fileID: 0}
     Other:
       Persist: 0
       Timestamp: 0

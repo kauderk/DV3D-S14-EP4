@@ -29,7 +29,6 @@ namespace ScriptableObjects
         #endregion
 
         #region PreviewCode
-        private AudioSource sourcePreviewer;
 
         public static Action<int, AudioMood> OnScoreChanged;
 
@@ -53,12 +52,14 @@ namespace ScriptableObjects
                 audioMoods[value] = list;
 
                 // get the audio mixer group that matches the name
+                var go = new GameObject($"AudioPreview_{name}");
+                var sourcePreviewer = go.AddComponent<AudioSource>();
+                // those under Master
+                sourcePreviewer.outputAudioMixerGroup = MainAudioMixer.FindMatchingGroups(name)[0];
+
                 audioMoods[value].ForEach(IO =>
                 {
-                    var go = new GameObject($"AudioPreview_{name}");
-                    sourcePreviewer = go.AddComponent<AudioSource>();
-                    // those under Master
-                    sourcePreviewer.outputAudioMixerGroup = MainAudioMixer.FindMatchingGroups(name)[0];
+                    IO.Source = sourcePreviewer;
                     IO.GameObj = go;
                 });
             }
@@ -83,12 +84,9 @@ namespace ScriptableObjects
         void ScoreChanged(int score, AudioMood mood)
         {
             // get the value of the mood form the dictionary
-            var list = audioMoods.TryGetValue(mood, out List<InputOutputData> value) ? value : null;
-            if (list == null)
-            {
-                Debug.Log("No Audio list found for mood " + mood);
+            var list = GetIO_AudioList(mood);
+            if (list.Count == 0)
                 return;
-            }
             // reverse the list
             // list.Reverse();
             // find the first one that is greater than the score
@@ -107,6 +105,25 @@ namespace ScriptableObjects
             PlayWithData(IO_Audio);
         }
 
+        private List<InputOutputData> GetIO_AudioList(AudioMood mood)
+        {
+            var list = audioMoods.TryGetValue(mood, out List<InputOutputData> value) ? value : null;
+            if (list == null)
+            {
+                Debug.Log("No Audio list found for mood " + mood);
+                return null;
+            }
+            return list;
+        }
+
+        private InputOutputData GetIO_Audio(AudioMood mood, string id)
+        {
+            var list = GetIO_AudioList(mood);
+            if (list.Count == 0)
+                return null;
+            return list.Find(IO => IO.Id == id);
+        }
+
         private void PlayWithData(InputOutputData IO_Audio)
         {
             sourcePreviewer.clip = IO_Audio.Clip;
@@ -117,10 +134,6 @@ namespace ScriptableObjects
         {
             if (Application.isPlaying)
             {
-                // I don't want to chek if it already exist but Unity gives me no other way to do it.
-                var go = new GameObject("AudioPreview");
-                sourcePreviewer = go.AddComponent<AudioSource>();
-                PlayPreview();
                 OnLoad();
                 return;
             }
@@ -224,12 +237,12 @@ namespace ScriptableObjects
 
             source.Play();
 
-            if (!source || !sourcePreviewer)
+            if (!source || !IO_Audio.Source)
             {
                 Debug.Log("source is null");
             }
 #if UNITY_EDITOR
-            if (source != sourcePreviewer)
+            if (source != IO_Audio.Source)
             {
                 DestroyImmediate(source.gameObject);
             }
@@ -261,7 +274,7 @@ public class InputOutputData
 {
     public string Id;
     public AudioClip Clip;
-    public AudioSource Source { get; }
+    public AudioSource Source;
     public GameObject GameObj;
     public Other Other = new Other();
 }
