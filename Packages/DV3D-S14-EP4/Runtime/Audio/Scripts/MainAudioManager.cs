@@ -51,9 +51,19 @@ namespace ScriptableObjects
                 var list = (List<InputOutputData>)field.GetValue(this);
                 audioMoods[value] = list;
 
+                GameObject go = null;
+                AudioSource sourcePreviewer = null;
+
+#if UNITY_EDITOR
+                go = EditorUtility
+                    .CreateGameObjectWithHideFlags("AudioPreview", HideFlags.HideAndDontSave,
+                        typeof(AudioSource));
+                sourcePreviewer = go.GetComponent<AudioSource>();
+#else
                 // get the audio mixer group that matches the name
-                var go = new GameObject($"AudioPreview_{name}");
-                var sourcePreviewer = go.AddComponent<AudioSource>();
+                go = new GameObject($"AudioPreview_{name}");
+                sourcePreviewer = go.AddComponent<AudioSource>();
+#endif
                 // those under Master
                 sourcePreviewer.outputAudioMixerGroup = MainAudioMixer.FindMatchingGroups(name)[0];
 
@@ -63,6 +73,7 @@ namespace ScriptableObjects
                     IO.GameObj = go;
                 });
             }
+
 
             OnScoreChanged += ScoreChanged;
         }
@@ -102,7 +113,7 @@ namespace ScriptableObjects
                 Debug.Log("No Audio found for score " + score);
                 return;
             }
-            PlayWithData(IO_Audio);
+            Play(IO_Audio);
         }
 
         private List<InputOutputData> GetIO_AudioList(AudioMood mood)
@@ -124,11 +135,7 @@ namespace ScriptableObjects
             return list.Find(IO => IO.Id == id);
         }
 
-        private void PlayWithData(InputOutputData IO_Audio)
-        {
-            sourcePreviewer.clip = IO_Audio.Clip;
-            Play(IO_Audio, sourcePreviewer);
-        }
+
 
         private void init()
         {
@@ -142,30 +149,27 @@ namespace ScriptableObjects
 
         private void InitInEditorMode()
         {
-#if UNITY_EDITOR
-            sourcePreviewer = EditorUtility
-                .CreateGameObjectWithHideFlags("AudioPreview", HideFlags.HideAndDontSave,
-                    typeof(AudioSource))
-                .GetComponent<AudioSource>();
-            OnLoad();
-#endif
+
         }
 
         public void PlayPreview()
         {
-            if (!sourcePreviewer)
+            var IO = GetIO_Audio(AudioMood.Background, "base");
+            if (!IO.Clip)
             {
                 init();
                 Debug.Log("source was null on play, it's better to create a new one");
             }
-            PlayWithData(Background[0]);
+            IO = GetIO_Audio(AudioMood.Background, "base");
+            Play(IO);
         }
 
         public void StopPreview()
         {
-            if (sourcePreviewer)
+            var IO = GetIO_Audio(AudioMood.Background, "base");
+            if (IO.Source)
             {
-                sourcePreviewer.Stop();
+                IO.Source.Stop();
             }
         }
 
