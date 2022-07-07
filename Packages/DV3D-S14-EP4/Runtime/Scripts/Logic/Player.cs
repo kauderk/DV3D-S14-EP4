@@ -59,8 +59,12 @@ public class Player : MonoBehaviour
         IncreaseScore(1);
     }
 
-    private void OnObjectDetected(Collider other) =>
-        IncreaseScore(other.GetComponent<Pickupable>().Take());
+    private void OnObjectDetected(Collider other)
+    {
+        var score = other.GetComponent<Pickupable>().Take();
+        ScriptableObjects.MainAudioManager.OnScoreChanged?.Invoke(score, AudioMood.Pickups);
+        IncreaseScore(score);
+    }
 
     private void OnGroundStateChanged(bool isGrounded)
     {

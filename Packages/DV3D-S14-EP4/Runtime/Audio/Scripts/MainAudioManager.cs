@@ -4,6 +4,8 @@ using UnityEditor;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
+using System;
+using UnityEngine.Serialization;
 // https://forum.unity.com/threads/solved-but-unhappy-scriptableobject-awake-never-execute.488468/#post-3188178
 
 namespace ScriptableObjects
@@ -21,17 +23,39 @@ namespace ScriptableObjects
         public List<InputOutputData> Pickups = new List<InputOutputData>();
         public List<InputOutputData> Fails = new List<InputOutputData>();
         public List<InputOutputData> EpicFails = new List<InputOutputData>();
+        private Dictionary<AudioMood, List<InputOutputData>> audioMoods = new Dictionary<AudioMood, List<InputOutputData>>();
         #endregion
 
         #region PreviewCode
         private AudioSource previewer;
 
 
+        public static Action<int, AudioMood> OnScoreChanged;
+
         void OnEnable()
         {
+            OnScoreChanged += ScoreChanged;
             MainManager.OnGameInitialized += init;
             InitInEditorMode();
         }
+        void OnDisable()
+        {
+            OnScoreChanged += ScoreChanged;
+            MainManager.OnGameInitialized -= init;
+            if (previewer)
+            {
+                DestroyImmediate(previewer.gameObject);
+                return;
+            }
+            Debug.Log("source is null on Destroy");
+        }
+
+        void ScoreChanged(int score, AudioMood mood)
+        {
+            var x = audioMoods[mood].Find(x => x.Other.Threshold > score);
+
+        }
+
         private void init()
         {
             if (Application.isPlaying)
@@ -55,16 +79,6 @@ namespace ScriptableObjects
 #endif
         }
 
-        void OnDisable()
-        {
-            MainManager.OnGameInitialized -= init;
-            if (previewer)
-            {
-                DestroyImmediate(previewer.gameObject);
-                return;
-            }
-            Debug.Log("source is null on Destroy");
-        }
         public void PlayPreview()
         {
             if (!previewer)
@@ -175,6 +189,14 @@ public enum SoundClipPlayOrder
     reverse,
     random
 }
+public enum AudioMood
+{
+    Background,
+    Pickups,
+    Fails,
+    EpicFails,
+    Automatic
+}
 
 [System.Serializable]
 public class InputOutputData
@@ -189,6 +211,9 @@ public class Other
     public bool Persist = false;
     public float Timestamp = 0.0f;
     public bool Loop = true;
+    //add inspector label
+    [FormerlySerializedAs("Clips")]
+    public int Threshold = 1;
     public bool UseSemitones;
 
     public Vector2Int Semitones = new Vector2Int(0, 0);
