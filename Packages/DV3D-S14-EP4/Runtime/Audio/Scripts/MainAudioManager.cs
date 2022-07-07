@@ -29,7 +29,7 @@ namespace ScriptableObjects
         #endregion
 
         #region PreviewCode
-        private AudioSource previewer;
+        private AudioSource sourcePreviewer;
 
         public static Action<int, AudioMood> OnScoreChanged;
 
@@ -41,14 +41,6 @@ namespace ScriptableObjects
 
         private void OnLoad()
         {
-            // so far this will be manual labor, hopo to find the right way to do this
-            // audioMoods[AudioMood.Background] = Background;
-            // audioMoods[AudioMood.Pickups] = Pickups;
-            // audioMoods[AudioMood.Fails] = Fails;
-            // audioMoods[AudioMood.EpicFails] = EpicFails;
-
-
-
             string[] array = Enum.GetNames(typeof(AudioMood));
             for (int i = 0; i < array.Length; i++)
             {
@@ -59,7 +51,16 @@ namespace ScriptableObjects
                 var field = GetType().GetField(name);
                 var list = (List<InputOutputData>)field.GetValue(this);
                 audioMoods[value] = list;
-                audioMoods[value].ForEach(IO => IO.Clip = value);
+
+                // get the audio mixer group that matches the name
+                audioMoods[value].ForEach(IO =>
+                {
+                    var go = new GameObject($"AudioPreview_{name}");
+                    sourcePreviewer = go.AddComponent<AudioSource>();
+                    // those under Master
+                    sourcePreviewer.outputAudioMixerGroup = MainAudioMixer.FindMatchingGroups(name)[0];
+                    IO.GameObj = go;
+                });
             }
 
             OnScoreChanged += ScoreChanged;
@@ -69,12 +70,14 @@ namespace ScriptableObjects
         {
             OnScoreChanged -= ScoreChanged;
             MainManager.OnGameInitialized -= init;
-            if (previewer)
-            {
-                DestroyImmediate(previewer.gameObject);
-                return;
-            }
-            Debug.Log("source is null on Destroy");
+            foreach (var list in audioMoods.Values)
+                foreach (var IO in list)
+                {
+                    if (IO.GameObj)
+                        DestroyImmediate(IO.GameObj);
+                    else
+                        Debug.Log("Audio Source is null on Destroy");
+                }
         }
 
         void ScoreChanged(int score, AudioMood mood)
@@ -106,8 +109,8 @@ namespace ScriptableObjects
 
         private void PlayWithData(InputOutputData IO_Audio)
         {
-            previewer.clip = IO_Audio.Clip;
-            Play(IO_Audio, previewer);
+            sourcePreviewer.clip = IO_Audio.Clip;
+            Play(IO_Audio, sourcePreviewer);
         }
 
         private void init()
@@ -116,7 +119,7 @@ namespace ScriptableObjects
             {
                 // I don't want to chek if it already exist but Unity gives me no other way to do it.
                 var go = new GameObject("AudioPreview");
-                previewer = go.AddComponent<AudioSource>();
+                sourcePreviewer = go.AddComponent<AudioSource>();
                 PlayPreview();
                 OnLoad();
                 return;
@@ -127,7 +130,7 @@ namespace ScriptableObjects
         private void InitInEditorMode()
         {
 #if UNITY_EDITOR
-            previewer = EditorUtility
+            sourcePreviewer = EditorUtility
                 .CreateGameObjectWithHideFlags("AudioPreview", HideFlags.HideAndDontSave,
                     typeof(AudioSource))
                 .GetComponent<AudioSource>();
@@ -137,7 +140,7 @@ namespace ScriptableObjects
 
         public void PlayPreview()
         {
-            if (!previewer)
+            if (!sourcePreviewer)
             {
                 init();
                 Debug.Log("source was null on play, it's better to create a new one");
@@ -147,9 +150,9 @@ namespace ScriptableObjects
 
         public void StopPreview()
         {
-            if (previewer)
+            if (sourcePreviewer)
             {
-                previewer.Stop();
+                sourcePreviewer.Stop();
             }
         }
 
@@ -221,12 +224,12 @@ namespace ScriptableObjects
 
             source.Play();
 
-            if (!source || !previewer)
+            if (!source || !sourcePreviewer)
             {
                 Debug.Log("source is null");
             }
 #if UNITY_EDITOR
-            if (source != previewer)
+            if (source != sourcePreviewer)
             {
                 DestroyImmediate(source.gameObject);
             }
@@ -258,6 +261,8 @@ public class InputOutputData
 {
     public string Id;
     public AudioClip Clip;
+    public AudioSource Source { get; }
+    public GameObject GameObj;
     public Other Other = new Other();
 }
 [System.Serializable]
